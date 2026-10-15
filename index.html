@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <title>પ્રવેશ-પત્ર(Hall Ticket)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Vadodara:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* આખા પેજ અને દરેક એલિમેન્ટ માટે Hind Vadodara સેટ કર્યું છે */
+        * {
+            font-family: 'Hind Vadodara', sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px; 
+            overflow-x: hidden;
+        }
+
+        /* આધુનિક 3D અને આકર્ષક સ્કૂલ હેડર */
+.school-header { 
+    width: 100%;
+    max-width: 650px;
+    background: rgba(255, 255, 255, 0.15); /* ટ્રાન્સપરન્ટ લુક */
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.4); /* મજબૂત વ્હાઈટ બોર્ડર */
+    color: #ffffff; 
+    padding: 20px 15px; 
+    text-align: center; 
+    border-radius: 20px; 
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255,255,255,0.2); 
+    margin-bottom: 25px; 
+    
+    /* 3D અને ડબલ અક્ષર ઇફેક્ટ */
+    font-size: 25px; 
+    font-weight: 900;
+    letter-spacing: 1px;
+    -webkit-text-stroke: 1px #1e3c72; /* અક્ષરની આસપાસ બ્લુ બોર્ડર (ડબલ અક્ષર લુક) */
+    text-shadow: 
+        2px 2px 0px #1e3c72, 
+        4px 4px 0px rgba(0,0,0,0.2),
+        0px 0px 10px rgba(255,255,255,0.5);
+}
+
+/* નીચેની વિગત (તાલુકો/જિલ્લો) માટે અલગ સ્ટાઇલ */
+.school-header span {
+    display: block;
+    font-size: 18px; 
+    font-weight: 500;
+    margin-top: 8px;
+    -webkit-text-stroke: 0px; /* આમાંથી બોર્ડર હટાવી દીધી જેથી વાંચવામાં સરળ રહે */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    color: #f1f1f1;
+}
+
+
+
+        /* Main 3D Box */
+        .box { 
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 550px;
+            padding: 25px 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+            text-align: center;
+        }
+
+        h2 { 
+            color: #1e3c72; 
+            font-size: 22px; 
+            margin-bottom: 15px; 
+            position: relative; 
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: #43cea2;
+            margin: 6px auto;
+            border-radius: 10px;
+        }
+
+        /* Stylish Floating Inputs */
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #dcdde1; 
+            border-radius: 10px; 
+            font-size: 15px; 
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #185a9d;
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(24, 90, 157, 0.1);
+            outline: none;
+        }
+
+        /* 3D Floating Button */
+        button { 
+            background: linear-gradient(45deg, #185a9d, #43cea2); 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600; 
+            margin-top: 10px; 
+            box-shadow: 0 5px 15px rgba(24, 90, 157, 0.3); 
+            transition: all 0.3s ease; 
+            width: 100%; 
+        }
+
+        button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(24, 90, 157, 0.4); 
+        }
+
+        /* Results Section */
+        #output { 
+            margin-top: 15px; 
+            font-weight: 600; 
+            font-size: 15px;
+        }
+
+        /* Hall Ticket Styling */
+        #hallTicket { 
+            display: none; 
+            background: #ffffff; 
+            padding: 20px 15px; /* પેડિંગ ઓછું કર્યું જેથી મોબાઈલમાં સમય ટેબલ સમાઈ જાય */
+            border: 2px solid #2f7ea8; 
+            border-radius: 12px; 
+            margin-top: 20px; 
+            text-align: left; 
+            color: #333; 
+        }
+
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px solid #2f7ea8;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .ticket-header h2 {
+            margin: 0;
+            color: #2f7ea8;
+            font-size: 18px; /* ફોન્ટ સાઈઝ નાની કરી */
+        }
+        
+        .ticket-header p {
+            font-size: 14px;
+        }
+
+        .badge {
+            background: #2f7ea8; 
+            color: white; 
+            padding: 3px 12px; 
+            border-radius: 15px;
+            font-size: 13px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* વિગતો સામસામે ગોઠવવા માટે Flexbox */
+        .student-info-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .info-left, .info-right { width: 48%; }
+
+        .info-row { 
+            margin: 4px 0; 
+            font-size: 14px; /* માહિતીના ફોન્ટ નાના કર્યા */
+        }
+
+        /* પરીક્ષા કાર્યક્રમ હેડિંગ સ્ટાઇલ (સિમ્પલ) */
+        .timetable-title {
+            text-align: center;
+            color: #185a9d;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 15px 0 10px 0;
+            border-bottom: 1px dashed #185a9d;
+            padding-bottom: 5px;
+        }
+
+        /* Table Style (વધુ સ્પેસ કાઢી નાખી, સિમ્પલ લુક) */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; /* separate ના બદલે collapse જેથી જગ્યા ઓછી રોકે */
+            margin-top: 5px; 
+            background: white; 
+        }
+
+        th, td { 
+            border: 1px solid #ccc; 
+            padding: 6px 4px; /* પેડિંગ ઘટાડ્યું */
+            text-align: center; 
+            font-size: 13px; /* ટેબલના ફોન્ટ નાના કર્યા */
+        }
+
+        th { 
+            background-color: #f2f2f2; 
+            color: #2f7ea8; 
+            font-weight: 700;
+        }
+
+        /* રો (Row) માટે હળવા (સિમ્પલ) કલર્સ */
+        #htTableBody tr:nth-child(even) { background-color: #f9f9f9; }
+        #htTableBody tr:nth-child(odd) { background-color: #ffffff; }
+
+        .download-btns { display: none; margin-top: 15px; }
+
+        .warning-text {
+            font-size: 11px; 
+            margin-top: 15px; 
+            text-align: center; 
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* મોબાઈલ માટે ખાસ સેટિંગ્સ */
+        @media (max-width: 480px) {
+    .student-info-grid {
+        flex-direction: column;   /* 🔥 vertical layout */
+        gap: 8px;
+    }
+
+    .info-left, .info-right {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;  /* 🔥 અંદર left-right રાખે */
+    }
+
+    .info-right {
+        text-align: left; /* optional */
+    }
+}
+            
+            th, td { font-size: 12px; padding: 5px 2px; } /* મોબાઈલમાં ફોન્ટ વધુ નાના */
+        }
+
+.instructions {
+    background: linear-gradient(135deg, #fff7e6, #ffe0b2);
+    border: 1px solid #f39c12;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.instructions h3 {
+    text-align: center;
+    color: #d35400;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.instructions ul {
+        list-style: none;   /* 🔥 bullet દૂર કરે */
+    padding-left: 18px;
+}
+
+.instructions ul li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 5px;
+}
+
+.best-wish {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.scroll-box {
+    height: 140px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fff7e6, #ffe0b2);
+    border: 1px solid #f39c12;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.scroll-content {
+    position: absolute;
+    width: 100%;
+    animation: scrollUp 18s linear infinite;
+    padding: 10px;
+    text-align: left;
+}
+
+.scroll-content h3 {
+    text-align: center;
+    color: #d35400;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.scroll-content p {
+    font-size: 13px;
+    margin: 4px 0;
+}
+
+.best-wish {
+    text-align: center;
+    margin-top: 8px;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+/* Animation */
+@keyframes scrollUp {
+    0% { top: 100%; }
+    100% { top: -100%; }
+}
+
+    
+/* ===== વાર્ષિક પરીક્ષા પરિણામ પત્રકથી પ્રેરિત નવી થીમ ===== */
+body {
+    background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb, #f6d365, #fda085);
+    background-size: 400% 400%;
+    animation: resultGradientBG 15s ease infinite;
+    padding: 20px;
+}
+@keyframes resultGradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.school-header {
+    max-width: 550px;
+    background: #fff;
+    border: 4px solid #1e3c72;
+    color: #1e3c72;
+    padding: 20px 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.2);
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+    letter-spacing: 0;
+    font-size: 24px;
+    margin-bottom: 25px;
+}
+.school-header span {
+    color: #555;
+    text-shadow: none;
+    font-weight: 600;
+    -webkit-text-stroke: 0;
+}
+.box {
+    background: rgba(255,255,255,.96);
+    max-width: 550px;
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 20px;
+    padding: 25px 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,.2);
+}
+h2 { color: #2c3e50; }
+h2::after { background: linear-gradient(90deg, #185a9d, #43cea2); }
+input, select {
+    border: 1px solid #dcdde1;
+    border-radius: 10px;
+    background: #f9f9f9;
+}
+input:focus, select:focus {
+    border-color: #185a9d;
+    box-shadow: 0 3px 10px rgba(24,90,157,.15);
+}
+button {
+    background: linear-gradient(45deg, #185a9d, #43cea2);
+    border-radius: 25px;
+    box-shadow: 0 5px 15px rgba(24,90,157,.25);
+}
+button:hover { transform: translateY(-2px); }
+.scroll-box {
+    background: #fff7e6;
+    border: 1px solid #f39c12;
+    border-radius: 12px;
+}
+.scroll-content h3 { color: #d35400; }
+.best-wish { color: #27ae60; }
+#hallTicket {
+    background: #fff;
+    border: 2px solid #2f7ea8;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(30,60,114,.12);
+    padding: 20px;
+}
+.ticket-header {
+    border-bottom: 2px solid #2f7ea8;
+}
+.ticket-header h2 { color: #1e3c72; }
+.badge {
+    background: linear-gradient(45deg, #185a9d, #43cea2);
+    border-radius: 15px;
+}
+.timetable-title {
+    color: #2f7ea8;
+    border-bottom-color: #2f7ea8;
+}
+th {
+    background: #eaf4f8;
+    color: #2f7ea8;
+}
+#htTableBody tr:nth-child(even) { background: #f2f8fb; }
+#htTableBody tr:nth-child(odd) { background: #fff; }
+.warning-text { color: #c0392b; }
+.download-btns {
+    display: none;
+    gap: 10px;
+}
+.download-btns button {
+    flex: 1;
+    border-radius: 12px;
+    box-shadow: 0 6px 0 rgba(0,0,0,.15), 0 10px 20px rgba(0,0,0,.1);
+}
+.credit-line {
+    text-align: center;
+    margin-top: 20px;
+    padding: 12px 5px;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(to right, #ff758c, #6c5ce7, #00b09b, #ff758c);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: resultShine 3s linear infinite;
+}
+@keyframes resultShine { to { background-position: 200% center; } }
+@media (max-width: 480px) {
+    body { padding: 12px; }
+    .school-header { font-size: 21px; padding: 16px 10px; }
+    .box { padding: 18px 12px; }
+    #hallTicket { padding: 14px 10px; }
+    th, td { font-size: 11px; padding: 5px 2px; }
+    .ticket-header h2 { font-size: 17px; }
+}
+
+
+.marquee-container {
+    background: #fff7e6;
+    color: #1a237e;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 7px 5px;
+    border-radius: 6px;
+    border: 1px solid #fbc02d;
+    margin: 0 0 15px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,.05);
+    overflow: hidden;
+}
+.marquee-container marquee { display: block; }
+@media (max-width: 480px) {
+    .marquee-container { font-size: 12px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="school-header">
+    શ્રી લાખણકા પ્રાથમિક શાળા
+    <span>તા. વલભીપુર, જિ. ભાવનગર</span>
+</div>
+
+<div class="box">
+    <h2>પ્રથમ સત્રાંત પરીક્ષા પ્રવેશ-પત્ર (Hall Ticket)</h2>
+
+<div class="scroll-box">
+    <div class="scroll-content">
+        <h3>📝 પ્રથમ સત્રાંત પરીક્ષા માટે જરૂરી સૂચનાઓ:</h3>
+
+        <p>📍પ્રથમ સત્રાંત પરીક્ષામાં જે-તે વિષયની પૂર્ણ તૈયારી સાથે આવવું.</p>
+        <p>📍પરીક્ષા માટે જરૂરી સાધન-સામગ્રી સાથે લઈને જ આવવું.</p>
+        <p>📍જવાબવહીમાં તમારી વિગતો ચોકસાઈપૂર્વક ભરવી.</p>
+        <p>📍પ્રશ્નપત્ર એકવાર શાંતિથી વાંચીને જ લખવાની શરૂઆત કરવી.</p>
+        <p>📍ચિંતા વગર આત્મવિશ્વાસ સાથે પેપર લખવું.</p>
+        <p>📍જે પ્રશ્ન આવડતો હોય તે પહેલા લખવો.</p>
+        <p>📍સ્વચ્છ અને મરોડદાર લખાણ રાખવું.</p>
+        <p>📍પરીક્ષાખંડમાં ગેરરીતિ કે વાતચીત કરવી નહીં.</p>
+        <p>📍સમજ ન પડે તો નિરીક્ષકને પૂછવું.</p>
+        <p>📍ઉત્તરવહીમાં લખેલા જવાબને ફરીથી ચકાસી લેવા.</p>
+
+        <div class="best-wish">👍 All The Best 👍</div>
+    </div>
+</div>
+
+
+<div class="marquee-container">
+        <marquee behavior="scroll" direction="left" scrollamount="6" id="lbl_marquee">
+            👨🏻‍🏫 શ્રી અમરજીતસિંહ પરમાર - શ્રી લાખણકા પ્રાથમિક શાળા, તા. વલભીપુર, જિ. ભાવનગર, Mo. 9978346472
+        </marquee>
+    </div>
+    
+    <select id="stdInput">
+        <option value="">-- ધોરણ પસંદ કરો --</option>
+	<option value="3">ધોરણ 3</option>
+        <option value="4">ધોરણ 4</option>
+        <option value="5">ધોરણ 5</option>
+        <option value="6">ધોરણ 6</option>
+        <option value="7">ધોરણ 7</option>
+        <option value="8">ધોરણ 8</option>
+    </select>
+
+    <input type="number" id="rollInput" placeholder="રોલ નંબર લખો">
+    
+    <button onclick="fetchData()">🚀 સીટ નંબર શોધો</button>
+
+<div class="credit-line">🎨 CREATED BY : AMARJEETSINH PARMAR</div>
+
+    <div id="output"></div>
+
+    <div id="hallTicket">
+        <div class="ticket-header">
+            <h2>શ્રી લાખણકા પ્રાથમિક શાળા</h2>
+            <p style="margin:5px 0; font-weight:bold; color: #555;">પ્રથમ સત્રાંત પરીક્ષા - 2026</p>
+            <span class="badge">🎫 પ્રવેશ-પત્ર (Hall Ticket)</span>
+        </div>
+
+        <div class="info-row" style="border-bottom: 1px solid #eee; padding-bottom: 6px; margin-bottom: 10px;">
+            <strong>વિદ્યાર્થીનું નામ:</strong> <span id="htName" style="font-size: 15px; color: #d35400; font-weight: 600;"></span>
+        </div>
+
+        <div class="student-info-grid">
+            <div class="info-left">
+                <div class="info-row"><strong>ધોરણ:</strong> <span id="htStdDisplay"></span></div>
+                <div class="info-row"><strong>રોલ નંબર:</strong> <span id="htRoll"></span></div>
+            </div>
+            <div class="info-right" style="text-align: right;">
+                <div class="info-row"><strong>સીટ નંબર:</strong> <span id="htSeat" style="font-weight: 700; color: #27ae60;"></span></div>
+                <div class="info-row"><strong>બ્લોક નંબર:</strong> <span id="htBlock"></span></div>
+            </div>
+        </div>
+
+        <div class="timetable-title">📅 પરીક્ષા કાર્યક્રમ</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>તારીખ</th>
+                    <th>વાર</th>
+                    <th>વિષય</th>
+                    <th>સમય</th>
+                </tr>
+            </thead>
+            <tbody id="htTableBody"></tbody>
+        </table>
+        
+        <p class="warning-text">* પરીક્ષા સમયે આ પ્રવેશ-પત્ર સાથે રાખવું ફરજિયાત છે.</p>
+    </div>
+
+    <div id="downloadBtns" class="download-btns">
+        <button onclick="downloadPNG()" style="background: #e67e22; width: auto; display: inline-block; padding: 10px 15px; font-size: 14px;">📥 PNG ડાઉનલોડ</button>
+        <button onclick="downloadPDF()" style="background: #c0392b; width: auto; display: inline-block; padding: 10px 15px; font-size: 14px;">📄 PDF ડાઉનલોડ</button>
+    </div>
+</div>
+
+<script>
+const timetables = {
+    "3": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "11:00 થી 01:00" },
+        { d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "11:00 થી 01:00" },
+        { d: "27/10/2026", day: "મંગળવાર", s: "પર્યાવરણ", time: "11:00 થી 01:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "11:00 થી 01:00" }
+    ],
+    "4": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "11:00 થી 01:00" },
+        { d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "11:00 થી 01:00" },
+        { d: "27/10/2026", day: "મંગળવાર", s: "પર્યાવરણ", time: "11:00 થી 01:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "11:00 થી 01:00" }
+    ],
+    "5": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "11:00 થી 01:00" },
+        { d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "11:00 થી 01:00" },
+ 	{ d: "26/10/2026", day: "સોમવાર", s: "હિન્દી", time: "11:00 થી 01:00" },       
+	{ d: "27/10/2026", day: "મંગળવાર", s: "પર્યાવરણ", time: "11:00 થી 01:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "11:00 થી 01:00" }
+    ],
+    "6": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "02:00 થી 05:00" },
+	{ d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "02:00 થી 05:00" },
+	{ d: "24/10/2026", day: "શનિવાર", s: "સંસ્કૃત", time: "08:00 થી 11:00" },
+	{ d: "26/10/2026", day: "સોમવાર", s: "હિન્દી", time: "02:00 થી 05:00" },
+	{ d: "27/10/2026", day: "મંગળવાર", s: "વિજ્ઞાન", time: "02:00 થી 05:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "02:00 થી 05:00" },
+	{ d: "29/10/2026", day: "ગુરૂવાર", s: "સમાજ", time: "02:00 થી 05:00" }
+    ],
+    "7": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "02:00 થી 05:00" },
+	{ d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "02:00 થી 05:00" },
+	{ d: "24/10/2026", day: "શનિવાર", s: "સંસ્કૃત", time: "08:00 થી 11:00" },
+	{ d: "26/10/2026", day: "સોમવાર", s: "હિન્દી", time: "02:00 થી 05:00" },
+	{ d: "27/10/2026", day: "મંગળવાર", s: "વિજ્ઞાન", time: "02:00 થી 05:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "02:00 થી 05:00" },
+	{ d: "29/10/2026", day: "ગુરૂવાર", s: "સમાજ", time: "02:00 થી 05:00" }
+    ],
+    "8": [
+        { d: "22/10/2026", day: "ગુરૂવાર", s: "ગુજરાતી", time: "02:00 થી 05:00" },
+	{ d: "23/10/2026", day: "શુક્રવાર", s: "ગણિત", time: "02:00 થી 05:00" },
+	{ d: "24/10/2026", day: "શનિવાર", s: "સંસ્કૃત", time: "08:00 થી 11:00" },
+	{ d: "26/10/2026", day: "સોમવાર", s: "હિન્દી", time: "02:00 થી 05:00" },
+	{ d: "27/10/2026", day: "મંગળવાર", s: "વિજ્ઞાન", time: "02:00 થી 05:00" },
+	{ d: "28/10/2026", day: "બુધવાર", s: "અંગ્રેજી", time: "02:00 થી 05:00" },
+	{ d: "29/10/2026", day: "ગુરૂવાર", s: "સમાજ", time: "02:00 થી 05:00" }
+    ]
+};
+
+const students = [
+{ roll: "1", std: "5", seat: "1", block: "1", name: "ચાવડા હર્ષ નિલેશભાઈ" },
+{ roll: "1", std: "3", seat: "2", block: "1", name: "લીંબડ હેતરાજ પ્રભાતભાઈ" },
+{ roll: "1", std: "4", seat: "3", block: "1", name: "આંબલીયા કાર્તિક રસિકભાઈ" },
+{ roll: "17", std: "3", seat: "4", block: "1", name: "રત્નોતર એન્જલ કલ્પેશભાઈ" },
+{ roll: "21", std: "5", seat: "5", block: "1", name: "ગમારા રચના વિરમભાઈ" },
+{ roll: "6", std: "5", seat: "6", block: "1", name: "વેગડ ભવ્યરાજસિંહ પ્રભાતસિંહ" },
+{ roll: "5", std: "3", seat: "7", block: "1", name: "ગમારા કુલદીપ ભરતભાઈ" },
+{ roll: "31", std: "5", seat: "8", block: "1", name: "ઉગરેજીયા જાનકી ભાવેશભાઈ" },
+{ roll: "19", std: "3", seat: "9", block: "1", name: "ગમારા ભૂમિકા લાખાભાઈ" },
+{ roll: "28", std: "5", seat: "10", block: "1", name: "ઉગરેજીયા આરાધ્યા કરણભાઈ" },
+{ roll: "4", std: "5", seat: "11", block: "1", name: "ગમારા સાહિલ વેલાભાઈ" },
+{ roll: "9", std: "3", seat: "12", block: "1", name: "ગમારા ભાવેશ લાખાભાઈ" },
+{ roll: "26", std: "5", seat: "13", block: "1", name: "ઉગરેજીયા ભૂમિ જીતુભાઈ" },
+{ roll: "22", std: "3", seat: "14", block: "1", name: "દિવ્યા મનહરભાઇ ઉગરેજીયા" },
+{ roll: "8", std: "5", seat: "15", block: "1", name: "ઉગરેજીયા ધાર્મિક ભાવેશભાઈ" },
+{ roll: "11", std: "5", seat: "16", block: "1", name: "ગમારા હર્ષિત જાદવભાઈ" },
+{ roll: "11", std: "3", seat: "17", block: "1", name: "ઉગરેજીયા મહાવીર પ્રતાપભાઈ" },
+{ roll: "23", std: "5", seat: "18", block: "1", name: "ગમારા દ્રષ્ટિ ગેલાભાઈ" },
+{ roll: "15", std: "3", seat: "19", block: "1", name: "શુભમ મહેશભાઈ મોણપરીયા" },
+{ roll: "13", std: "5", seat: "20", block: "1", name: "ઉગરેજીયા રાજવીર પ્રતાપભાઈ" },
+
+{ roll: "5", std: "5", seat: "23", block: "2", name: "પટેલિયા વિર કરણભાઈ" },
+{ roll: "2", std: "3", seat: "24", block: "2", name: "વેગડ પૃથ્વીરાજસિંહ ભગીરથભાઈ" },
+{ roll: "12", std: "5", seat: "25", block: "2", name: "ગમારા શુભમ કાનાભાઈ" },
+{ roll: "2", std: "4", seat: "26", block: "2", name: "આંબલીયા સાધના રસિકભાઈ" },
+{ roll: "25", std: "5", seat: "27", block: "2", name: "ચાવડા દુર્વા કિશનભાઈ" },
+{ roll: "9", std: "5", seat: "28", block: "2", name: "મકવાણા વિરાટ ગોવિંદભાઈ" },
+{ roll: "4", std: "3", seat: "29", block: "2", name: "સોલંકી મેહુલ અરવિંદભાઈ" },
+{ roll: "22", std: "5", seat: "30", block: "2", name: "ગમારા ખુશાલી વિરમભાઈ" },
+{ roll: "18", std: "3", seat: "31", block: "2", name: "બારૈયા વૈશાલી જીતુભાઈ" },
+{ roll: "30", std: "5", seat: "32", block: "2", name: "મોણપરીયા કિંજલ મહેશભાઈ" },
+{ roll: "2", std: "5", seat: "33", block: "2", name: "સોલંકિ હર્ષિલ દિનેશભાઈ" },
+{ roll: "14", std: "3", seat: "34", block: "2", name: "પ્રદિપ પ્રભુભાઈ ગાંગડિયા" },
+{ roll: "29", std: "5", seat: "35", block: "2", name: "ઉગરેજીયા તુલસી મનહરભાઈ" },
+{ roll: "8", std: "3", seat: "36", block: "2", name: "ગમારા ધાર્મિક કાનજીભાઈ" },
+{ roll: "3", std: "5", seat: "37", block: "2", name: "ગમારા તુસાલ લાખાભાઈ" },
+{ roll: "27", std: "5", seat: "38", block: "2", name: "ગમારા વિશ્વા વિરમભાઈ" },
+{ roll: "16", std: "3", seat: "39", block: "2", name: "સોલંકી વંશીકા મહેશભાઈ" },
+{ roll: "14", std: "5", seat: "40", block: "2", name: "મોણપરીયા મનિષ નિલેશભાઈ" },
+{ roll: "7", std: "3", seat: "41", block: "2", name: "ગમારા નીલેશ લાખાભાઈ" },
+
+{ roll: "7", std: "5", seat: "45", block: "3", name: "ચોહલા હાર્દિક જીતેન્દ્રભાઈ" },
+{ roll: "12", std: "3", seat: "46", block: "3", name: "ગમારા હર્ષિવ વિરમભાઈ" },
+{ roll: "20", std: "5", seat: "47", block: "3", name: "ધંધુકિયા નેહાબેન હરેશભાઈ" },
+{ roll: "21", std: "3", seat: "48", block: "3", name: "જાળીયા પુર્વાબા કિશનભાઈ" },
+{ roll: "10", std: "5", seat: "49", block: "3", name: "સરવૈયા મીત અરવિંદભાઇ" },
+{ roll: "32", std: "5", seat: "50", block: "3", name: "કાવ્યા ભગીરથભાઈ જોષી" },
+{ roll: "13", std: "3", seat: "51", block: "3", name: "કોલાદરા પ્રદિપ રસીકભાઈ" },
+{ roll: "19", std: "5", seat: "52", block: "3", name: "સોલંકિ આયુષી રોહિતભાઈ" },
+{ roll: "20", std: "3", seat: "53", block: "3", name: "ગમારા દર્શના વિરમભાઈ" },
+{ roll: "16", std: "5", seat: "54", block: "3", name: "ઉગરેજીયા જીગર ભાવેશભાઈ" },
+{ roll: "17", std: "5", seat: "55", block: "3", name: "ઉગરેજીયા ધવલ વિપુલભાઈ" },
+{ roll: "10", std: "3", seat: "56", block: "3", name: "ભડભીડીયા ધાર્મિક રામજીભાઈ" },
+{ roll: "24", std: "5", seat: "57", block: "3", name: "ઉગરેજીયા રોશની પ્રવિણભાઈ" },
+{ roll: "3", std: "3", seat: "58", block: "3", name: "દેવમોરારી ઓમ રામદાસભાઈ" },
+{ roll: "18", std: "5", seat: "59", block: "3", name: "રાણીંગા વિશ્નુભાઇ રામજીભાઇ" },
+{ roll: "15", std: "5", seat: "60", block: "3", name: "ઉગરેજીયા દેવા જીતુભાઈ" },
+{ roll: "6", std: "3", seat: "61", block: "3", name: "ગમારા જયપાલ વિરમભાઈ" },
+
+{ roll: "4", std: "6", seat: "1", block: "1", name: "જાળીયા યશરાજસિંહ ચેતનભાઈ" },
+{ roll: "2", std: "7", seat: "2", block: "1", name: "દેવમોરારી માહિરકુમાર રામદાસભાઈ" },
+{ roll: "1", std: "8", seat: "3", block: "1", name: "બારૈયા કુનાલ જીતુભાઈ" },
+{ roll: "15", std: "6", seat: "4", block: "1", name: "ચાવડા ધ્યાનાબા રણજીતસિંહ" },
+{ roll: "16", std: "8", seat: "5", block: "1", name: "વેગડ શકિતબા નિર્મળભાઈ" },
+{ roll: "6", std: "6", seat: "6", block: "1", name: "ઉગરેજીયા સુમિત સંજયભાઈ" },
+{ roll: "12", std: "7", seat: "7", block: "1", name: "ચોહલા ખુશી જીતેન્દ્રભાઈ" },
+{ roll: "6", std: "8", seat: "8", block: "1", name: "ઉગરેજીયા યુવરાજ મનહરભાઈ" },
+{ roll: "4", std: "7", seat: "9", block: "1", name: "ભડભીડીયા અમર રામજીભાઈ" },
+{ roll: "18", std: "8", seat: "10", block: "1", name: "ઉગરેજીયા પ્રિયંકા કરણભાઈ" },
+{ roll: "8", std: "6", seat: "11", block: "1", name: "ઉગરેજીયા વિરાટ વિપુલભાઈ" },
+{ roll: "17", std: "7", seat: "12", block: "1", name: "સરવૈયા અનિતાબેન અરવિંદભાઇ" },
+{ roll: "9", std: "8", seat: "13", block: "1", name: "ઉગરેજીયા વિર ભાવેશભાઈ" },
+{ roll: "17", std: "6", seat: "14", block: "1", name: "ગમારા તેજલ ભરતભાઈ" },
+{ roll: "23", std: "8", seat: "15", block: "1", name: "ઉગરેજીયા કાજલ મનહરભાઈ" },
+{ roll: "10", std: "6", seat: "16", block: "1", name: "નાવડિયા હેવનભાઈ સંજયભાઈ" },
+{ roll: "7", std: "7", seat: "17", block: "1", name: "તુષાર આનંદભાઈ ઉગરેજીયા" },
+{ roll: "3", std: "8", seat: "18", block: "1", name: "ચોહલા ધાર્મિક જીતેન્દ્રભાઈ" },
+{ roll: "19", std: "7", seat: "19", block: "1", name: "કોલાદરા પાયલ રસીકભાઈ" },
+{ roll: "25", std: "8", seat: "20", block: "1", name: "દ્રષ્ટિ નાથુભાઇ ધંધુકિયા" },
+{ roll: "21", std: "6", seat: "21", block: "1", name: "ગોલેતર જીયા અલ્પેશભાઈ" },
+{ roll: "10", std: "7", seat: "22", block: "1", name: "ઉગરેજીયા અલ્પેશ અજીતભાઈ" },
+
+{ roll: "7", std: "6", seat: "23", block: "2", name: "ઉગરેજીયા આહિલ પ્રવિણભાઈ" },
+{ roll: "1", std: "7", seat: "24", block: "2", name: "હાડા મનદિપસિંહ જયદિપસિંહ" },
+{ roll: "7", std: "8", seat: "25", block: "2", name: "નાવડીયા જેનીલભાઈ શૈલેષભાઈ" },
+{ roll: "16", std: "6", seat: "26", block: "2", name: "જાળીયા હેતાક્ષીબા કરણસિંહ" },
+{ roll: "14", std: "8", seat: "27", block: "2", name: "લીંબડ શ્રુતી પ્રભાતસિંહ" },
+{ roll: "1", std: "6", seat: "28", block: "2", name: "લીંબડ મંત્ર નવલસિંહ" },
+{ roll: "3", std: "7", seat: "29", block: "2", name: "ગમારા જગદીશ સવાભાઈ" },
+{ roll: "10", std: "8", seat: "30", block: "2", name: "ગોલેતર જીજ્ઞેશકુમાર વિજયભાઈ" },
+{ roll: "16", std: "7", seat: "31", block: "2", name: "ચાવડા પાર્થવીબેન યુવરાજસિંહ" },
+{ roll: "17", std: "8", seat: "32", block: "2", name: "ઉગરેજીયા રાધિકા ભાવેશભાઈ" },
+{ roll: "2", std: "6", seat: "33", block: "2", name: "વેગડ રૂદ્ર રાજપાલસિંહ" },
+{ roll: "6", std: "7", seat: "34", block: "2", name: "ગોલેતર રણજીત ખેંગારભાઇ" },
+{ roll: "12", std: "8", seat: "35", block: "2", name: "ઉગરેજીયા અલ્પેશ દિલિપભાઈ" },
+{ roll: "14", std: "6", seat: "36", block: "2", name: "વેગડ માહી ભગીરથભાઈ" },
+{ roll: "21", std: "8", seat: "37", block: "2", name: "ગોલેતર માન્યતાબેન વેલજીભાઈ" },
+{ roll: "13", std: "6", seat: "38", block: "2", name: "મોણપરીયા હિતેશ જીતુભાઈ" },
+{ roll: "18", std: "7", seat: "39", block: "2", name: "આનંદી કરણભાઈ પટેલીયા" },
+{ roll: "2", std: "8", seat: "40", block: "2", name: "ગમારા દર્શન ભરતભાઈ" },
+{ roll: "14", std: "7", seat: "41", block: "2", name: "ગમારા પ્રાચી લાખાભાઈ" },
+{ roll: "19", std: "6", seat: "42", block: "2", name: "ઉગરેજીયા શિતલ જીતુભાઈ" },
+{ roll: "24", std: "8", seat: "43", block: "2", name: "નાવડીયા તન્વી મુકેશભાઈ" },
+{ roll: "13", std: "7", seat: "44", block: "2", name: "મકવાણા કાવ્યાબેન અનિલભાઈ" },
+
+{ roll: "4", std: "8", seat: "45", block: "3", name: "ગમારા હર્ષદ રણછોડભાઈ" },
+{ roll: "9", std: "6", seat: "46", block: "3", name: "કાતરીયા શુભ હિતેશભાઈ" },
+{ roll: "8", std: "7", seat: "47", block: "3", name: "કિર્તિરાજ નરેન્દ્રસિંહ પરમાર" },
+{ roll: "13", std: "8", seat: "48", block: "3", name: "સોલંકી માહી અશોકભાઈ" },
+{ roll: "18", std: "6", seat: "49", block: "3", name: "બારૈયા કોમલ જીતુભાઈ" },
+{ roll: "8", std: "8", seat: "50", block: "3", name: "આંબલિયા કુલદિપ રસિકભાઈ" },
+{ roll: "3", std: "6", seat: "51", block: "3", name: "વેગડ જીલ જયપાલભાઈ" },
+{ roll: "20", std: "7", seat: "52", block: "3", name: "દિવ્યા પિન્ટુભાઈ ગાંગડિયા" },
+{ roll: "15", std: "8", seat: "53", block: "3", name: "વેગડ નિયતિબેન પ્રભાતસિંહ" },
+{ roll: "9", std: "7", seat: "54", block: "3", name: "અમિત વિજયકુમાર યાદવ" },
+{ roll: "11", std: "8", seat: "55", block: "3", name: "ડાભી ઓમરાજસિંહ બનેશંગભાઈ" },
+{ roll: "5", std: "6", seat: "56", block: "3", name: "મકવાણા હિરેન અનિલભાઈ" },
+{ roll: "15", std: "7", seat: "57", block: "3", name: "ગોલેતર યશસ્વીબેન વેલજીભાઇ" },
+{ roll: "19", std: "8", seat: "58", block: "3", name: "ઉગરેજીયા ગોપીબેન પ્રવિણભાઈ" },
+{ roll: "20", std: "6", seat: "59", block: "3", name: "કરાણીયા ખુશી રાજુભાઈ" },
+{ roll: "5", std: "8", seat: "60", block: "3", name: "ગમારા જયદિપ ગેલાભાઈ" },
+{ roll: "11", std: "6", seat: "61", block: "3", name: "ગોલેતર દક્ષ જયેશ્ભાઈ" },
+{ roll: "5", std: "7", seat: "62", block: "3", name: "ઉગરેજીયા યુવરાજ અજીતભાઈ" },
+{ roll: "20", std: "8", seat: "63", block: "3", name: "ચાવડા કૃપાલીબેન પ્રદીપભાઈ" },
+{ roll: "11", std: "7", seat: "64", block: "3", name: "ગમારા રૂતવી વેલાભાઈ" },
+{ roll: "22", std: "8", seat: "65", block: "3", name: "પટેલીયા નંદની રણજીતભાઈ" },
+{ roll: "12", std: "6", seat: "66", block: "3", name: "ઉગરેજીયા વિશાલ આનંદભાઈ" },
+];
+
+function fetchData() {
+    const roll = document.getElementById('rollInput').value.trim();
+    const std = document.getElementById('stdInput').value;
+    const output = document.getElementById('output');
+
+    if(!roll || !std) {
+        output.innerHTML = "<span style='color:#e74c3c;'>કૃપા કરીને બધી વિગતો ભરો.</span>";
+        return;
+    }
+
+    try {
+        let foundStudent = students.find(s => s.roll === roll && s.std === std);
+
+        if(foundStudent) {
+            document.getElementById("htName").innerText = foundStudent.name;
+            document.getElementById("htRoll").innerText = foundStudent.roll;
+            document.getElementById("htStdDisplay").innerText = foundStudent.std;
+            document.getElementById("htSeat").innerText = foundStudent.seat;
+            document.getElementById("htBlock").innerText = foundStudent.block;
+
+            let tableHTML = "";
+            timetables[std].forEach(t => {
+                tableHTML += `<tr>
+                    <td>${t.d}</td>
+                    <td>${t.day}</td>
+                    <td>${t.s}</td>
+                    <td>${t.time}</td>
+                </tr>`;
+            });
+
+            document.getElementById("htTableBody").innerHTML = tableHTML;
+            document.getElementById("hallTicket").style.display = "block";
+            document.getElementById("downloadBtns").style.display = "block";
+            output.innerHTML = "<span style='color:#27ae60;'>✅ પ્રવેશ-પત્ર તૈયાર છે!</span>";
+        } else {
+            document.getElementById("hallTicket").style.display = "none";
+            document.getElementById("downloadBtns").style.display = "none";
+            output.innerHTML = "<span style='color:#e74c3c;'>❌ માહિતી મળી નથી. કૃપા કરીને સાચો રોલ નંબર નાખો.</span>";
+        }
+    } catch (e) {
+        output.innerHTML = "Error: " + e.message;
+    }
+}
+
+function downloadPNG() {
+    const ticket = document.getElementById("hallTicket");
+    html2canvas(ticket, { 
+        scale: 3, 
+        backgroundColor: "#ffffff",
+        logging: false 
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `HallTicket_${document.getElementById('htRoll').innerText}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+
+async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const ticket = document.getElementById("hallTicket");
+
+    const canvas = await html2canvas(ticket, { scale: 3, backgroundColor: "#ffffff" });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 190;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+    pdf.save(`HallTicket_${document.getElementById('htRoll').innerText}.pdf`);
+}
+</script>
+
+</body>
+</html>
